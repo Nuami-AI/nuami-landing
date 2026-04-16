@@ -1,0 +1,39 @@
+{
+  "name": "nuami-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nuami landing page with Next.js and TypeScript",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuami-AI/nuami-landing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nuami-AI/nuami-landing/issues"
+  },
+  "homepage": "https://github.com/Nuami-AI/nuami-landing#readme",
+  "dependencies": {
+    "@nuami-ai/nuami-design": "npm:@Nuami-AI/nuami-design@^0.1.0",
+    "next": "^15.3.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.8.3"
+  }
+}
