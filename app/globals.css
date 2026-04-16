@@ -82,6 +82,7 @@
     /* HTML 요소 스크롤바도 숨기기 */
     -ms-overflow-style: none;
     scrollbar-width: none;
+    scroll-behavior: smooth;
   }
 
   html::-webkit-scrollbar {
