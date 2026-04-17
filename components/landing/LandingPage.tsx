@@ -71,6 +71,12 @@ function Navbar() {
             </a>
           ))}
         </nav>
+        <a
+          href="#cta"
+          className="hidden items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-violet-500/20 transition hover:brightness-110 lg:inline-flex"
+        >
+          파일럿 참여하기
+        </a>
         <button className="rounded-lg border border-slate-200 p-2 lg:hidden" onClick={() => setOpen((v) => !v)} aria-label="메뉴 열기">
           {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
