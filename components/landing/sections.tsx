@@ -4,7 +4,6 @@ import { motion, useMotionTemplate, useMotionValue, useScroll, useSpring, useTra
 import {
   ArrowRight,
   Bookmark,
-  Check,
   Info,
   MapPin,
   MessageCircleMore,
@@ -12,7 +11,6 @@ import {
   Sparkles,
   WandSparkles,
 } from "lucide-react";
-import { FormEvent } from "react";
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
@@ -147,7 +145,7 @@ export function HeroSection() {
         </Reveal>
 
         {/* Right mockup */}
-        <motion.div style={{ rotateX, rotateY }} className="relative flex justify-center" style={{ transformStyle: "preserve-3d" } as React.CSSProperties}>
+        <motion.div style={{ rotateX, rotateY }} className="relative flex justify-center">
           <motion.div style={{ backgroundImage: glow }} className="absolute inset-0 rounded-3xl" />
           <div className="relative rounded-3xl border border-violet-100 bg-white p-6 shadow-2xl shadow-violet-200/60">
             {/* Phone frame */}
@@ -476,7 +474,7 @@ export function TrustSection() {
 }
 
 export function FinalCtaSection() {
-  const onSubmit = (event: FormEvent) => event.preventDefault();
+  const onSubmit = (event: React.FormEvent) => event.preventDefault();
   return (
     <section id="cta" className="scroll-mt-24 relative overflow-hidden bg-gradient-to-br from-slate-900 via-violet-950 to-indigo-950 py-20 sm:py-28">
       {/* Background decorations */}
