@@ -21,7 +21,6 @@
   },
   "homepage": "https://github.com/Nuami-AI/nuami-landing#readme",
   "dependencies": {
-    "@nuami-ai/nuami-design": "npm:@Nuami-AI/nuami-design@^0.1.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "next": "^15.3.1",
