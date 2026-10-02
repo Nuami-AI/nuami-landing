@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import ExhibitionBar from "@/components/ExhibitionBar";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import { seo, site } from "@/content/site";
 import "./globals.css";
 
@@ -15,33 +18,44 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  ...(site.canonicalUrl ? { metadataBase: new URL(site.canonicalUrl), alternates: { canonical: "/" } } : {}),
-  title: seo.title,
-  description: seo.description,
+  ...(site.canonicalUrl ? { metadataBase: new URL(site.canonicalUrl) } : {}),
+  title: seo.home.title,
+  description: seo.home.description,
   openGraph: {
     type: "website",
     siteName: "뉴아미 Nuami",
     locale: "ko_KR",
-    title: seo.ogTitle,
-    description: seo.description,
-    ...(site.canonicalUrl ? { url: "/", images: [{ url: "/og-image.png", width: 1200, height: 630, alt: seo.ogTitle }] } : {}),
+    title: seo.home.title,
+    description: seo.home.description,
+    ...(site.canonicalUrl ? { images: [{ url: "/og-image.png", width: 1200, height: 630, alt: seo.home.title }] } : {}),
   },
   twitter: {
     card: "summary_large_image",
-    title: seo.ogTitle,
-    description: seo.description,
+    title: seo.home.title,
+    description: seo.home.description,
     ...(site.canonicalUrl ? { images: ["/og-image.png"] } : {}),
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#8651F2",
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={pretendard.variable}>
-      <body>{children}</body>
+      <body>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2.5 focus:font-bold focus:text-brand-deep focus:shadow"
+        >
+          본문 바로가기
+        </a>
+        <ExhibitionBar />
+        <Header />
+        <main id="main">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }

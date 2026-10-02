@@ -3,12 +3,12 @@
 import { MessageCircle } from "lucide-react";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { scenarios } from "@/content/scenarios";
-import { service } from "@/content/site";
+import { guideCards, guideDisclaimer } from "@/content/site";
 
 const cardStyles = {
-  situation: { box: "bg-lavender text-ink", badge: "bg-white text-brand-deep", sub: "text-muted" },
-  action: { box: "bg-brand text-white on-dark", badge: "bg-white text-brand-deep", sub: "text-white/85" },
-  context: { box: "bg-coral-soft text-ink", badge: "bg-accent text-ink", sub: "text-muted" },
+  situation: "bg-lavender",
+  action: "border-2 border-brand bg-white",
+  context: "bg-coral-soft",
 } as const;
 
 export default function GuideDemo() {
@@ -37,7 +37,7 @@ export default function GuideDemo() {
   };
 
   return (
-    <div className="mt-10 md:mt-14">
+    <div className="mt-10 md:mt-12">
       <div role="tablist" aria-label="상황 선택" className="flex flex-wrap gap-2">
         {scenarios.map((s, i) => {
           const selected = i === activeIndex;
@@ -55,10 +55,8 @@ export default function GuideDemo() {
               tabIndex={selected ? 0 : -1}
               onClick={() => select(i)}
               onKeyDown={onKeyDown}
-              className={`inline-flex min-h-12 items-center gap-2 rounded-full border-2 px-5 text-[16px] font-bold transition-colors ${
-                selected
-                  ? "border-brand-deep bg-brand-deep text-white"
-                  : "border-line bg-white text-ink hover:border-brand"
+              className={`inline-flex min-h-12 items-center gap-2 rounded-full border px-5 text-[16px] font-bold transition-colors ${
+                selected ? "border-brand-deep bg-brand-deep text-white" : "border-line bg-white text-ink hover:border-brand-deep"
               }`}
             >
               {selected ? <span aria-hidden className="h-2 w-2 rounded-full bg-accent" /> : null}
@@ -86,23 +84,21 @@ export default function GuideDemo() {
               </p>
 
               <ol className="mt-5 grid gap-4 md:grid-cols-3">
-                {service.cards.map((card, ci) => {
-                  const key = card.key as keyof typeof cardStyles;
-                  const tone = cardStyles[key];
-                  const content = active[key];
+                {guideCards.map((card, ci) => {
+                  const content = active[card.key];
                   return (
-                    <li key={card.key} className={`flex flex-col rounded-[24px] p-6 md:p-7 ${tone.box}`}>
+                    <li key={card.key} className={`flex flex-col rounded-[20px] p-6 md:p-7 ${cardStyles[card.key]}`}>
                       <div className="flex items-center justify-between gap-3">
-                        <span className={`rounded-full px-3 py-1 text-[12px] font-extrabold tracking-[0.12em] uppercase ${tone.badge}`}>
+                        <span className="rounded-full bg-white px-3 py-1 text-[12px] font-extrabold tracking-[0.12em] text-brand-deep uppercase">
                           {card.label}
                         </span>
-                        <span aria-hidden className="text-[14px] font-extrabold opacity-70">
+                        <span aria-hidden className="text-[14px] font-extrabold text-muted">
                           0{ci + 1}
                         </span>
                       </div>
-                      <h3 className={`mt-5 text-[15px] font-bold ${tone.sub}`}>{card.title}</h3>
-                      <p className="mt-2 text-[19px] font-extrabold leading-snug md:text-[21px]">{content.title}</p>
-                      <p className={`mt-3 text-[16px] leading-relaxed ${key === "action" ? "text-white/90" : "text-ink/85"}`}>{content.body}</p>
+                      <h3 className="mt-5 text-[15px] font-bold text-muted">{card.title}</h3>
+                      <p className="mt-2 text-[19px] leading-snug font-extrabold md:text-[21px]">{content.title}</p>
+                      <p className="mt-3 text-[16px] leading-relaxed text-ink/85">{content.body}</p>
                     </li>
                   );
                 })}
@@ -112,7 +108,7 @@ export default function GuideDemo() {
         </div>
       ))}
 
-      <p className="mt-4 text-[14px] text-muted">{service.disclaimer}</p>
+      <p className="mt-4 text-[14px] text-muted">{guideDisclaimer}</p>
       <p className="sr-only-live" aria-live="polite">
         {announcement}
       </p>
