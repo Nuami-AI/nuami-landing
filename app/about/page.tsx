@@ -19,7 +19,7 @@ const principles = [
 export default function AboutPage() {
   return (
     <>
-      <PageHeading eyebrow="ABOUT NUAMI" pageName="회사소개" title="낯선 순간에도, 스스로 다음 행동을 선택할 수 있도록." />
+      <PageHeading eyebrow="ABOUT NUAMI" pageName="회사소개" image="city" title="낯선 순간에도, 스스로 다음 행동을 선택할 수 있도록." />
 
       {/* 시작의 배경 */}
       <section aria-labelledby="background-title" className="section-y bg-white">

@@ -25,7 +25,7 @@ export default function SolutionsPage() {
         title="우리 기관의 안내를, 유학생의 다음 행동으로."
         description="대학과 지역기관이 가진 안내자료를 생활 장면별 행동가이드로 연결하는 적용 방향을 함께 설계합니다."
       >
-        <p className="mt-7 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-[14px] font-bold text-ink">
+        <p className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-[14px] font-bold text-white backdrop-blur-sm">
           <span aria-hidden className="h-2 w-2 rounded-full bg-accent" />
           기관 협업 및 실증 준비
         </p>

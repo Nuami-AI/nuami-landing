@@ -8,7 +8,47 @@ export const inquiryTypes: { id: InquiryType; title: string; description: string
 ];
 
 export const MESSAGE_MAX = 1500;
-export const MAILTO_MAX = 1800;
+export const ORGANIZATION_MAX = 100;
+export const NAME_MAX = 50;
+export const EMAIL_MAX = 254;
+
+export type InquiryFields = {
+  type: InquiryType;
+  organization: string;
+  name: string;
+  email: string;
+  message: string;
+};
+
+export type InquiryErrors = Partial<Record<"organization" | "name" | "email" | "message", string>>;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function isInquiryType(value: unknown): value is InquiryType {
+  return inquiryTypes.some((t) => t.id === value);
+}
+
+export function validateInquiry(fields: Omit<InquiryFields, "type">): InquiryErrors {
+  const errors: InquiryErrors = {};
+  const organization = fields.organization.trim();
+  const name = fields.name.trim();
+  const email = fields.email.trim();
+  const message = fields.message.trim();
+
+  if (!organization) errors.organization = "기관/회사명을 입력해주세요.";
+  else if (organization.length > ORGANIZATION_MAX) errors.organization = `${ORGANIZATION_MAX}자 이내로 입력해주세요.`;
+
+  if (!name) errors.name = "담당자명을 입력해주세요.";
+  else if (name.length > NAME_MAX) errors.name = `${NAME_MAX}자 이내로 입력해주세요.`;
+
+  if (!email) errors.email = "이메일을 입력해주세요.";
+  else if (email.length > EMAIL_MAX || !EMAIL_PATTERN.test(email)) errors.email = "올바른 이메일 주소를 입력해주세요.";
+
+  if (!message) errors.message = "문의 내용을 입력해주세요.";
+  else if (message.length > MESSAGE_MAX) errors.message = `${MESSAGE_MAX.toLocaleString()}자 이내로 입력해주세요.`;
+
+  return errors;
+}
 
 export function resolveInquiryType(value: string | null | undefined): InquiryType {
   if (value === "event") return "other";
@@ -23,13 +63,12 @@ export function buildInquirySubject(type: InquiryType): string {
   return `[뉴아미 문의] ${getInquiryTitle(type)}`;
 }
 
-export function buildInquiryBody(fields: { type: InquiryType; organization: string; name: string; message: string }): string {
+export function buildInquiryBody(fields: InquiryFields): string {
   return [
-    "안녕하세요, 뉴아미.",
-    "",
     `문의 유형: ${getInquiryTitle(fields.type)}`,
     `기관/회사명: ${fields.organization.trim()}`,
     `담당자명: ${fields.name.trim()}`,
+    `이메일: ${fields.email.trim()}`,
     "",
     "문의 내용:",
     fields.message.trim(),

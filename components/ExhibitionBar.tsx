@@ -41,26 +41,28 @@ export default function ExhibitionBar() {
     }
   };
 
+  const message = `${event.dateLabel}, ${event.title}에서 뉴아미를 만나보세요.`;
+  const items = Array.from({ length: 6 }, (_, i) => (
+    <span key={i} className="flex shrink-0 items-center gap-2 pr-10">
+      {message}
+      {/* <ArrowRight size={16} className="shrink-0" /> */}
+    </span>
+  ));
+
   return (
-    <div className="border-b border-line bg-surface text-ink">
-      <div className="container-x flex min-h-11 items-center justify-between gap-2">
-        <Link
-          href="/inquire_all?type=event"
-          className="group flex min-h-11 flex-1 items-center gap-2 py-1.5 text-[14px] font-semibold leading-snug md:justify-center md:text-[15px]"
-        >
-          <span className="[word-break:keep-all]">
-            {event.dateLabel}, {event.title}에서 뉴아미를 만나보세요.
-            <span className="ml-1.5 font-normal text-muted">
-              {event.venue}
-              {event.booth ? ` · ${event.booth}` : ""}
-            </span>
+    <div className="bg-linear-to-r from-brand to-accent text-ink">
+      <div className="flex min-h-11 items-center">
+        <Link href="/inquire_all?type=event" className="marquee group relative flex min-h-11 min-w-0 flex-1 items-center overflow-hidden">
+          <span className="sr-only">{message}</span>
+          <span aria-hidden className="marquee-track flex w-max text-[14px] font-bold whitespace-nowrap md:text-[15px]">
+            <span className="flex shrink-0">{items}</span>
+            <span className="flex shrink-0">{items}</span>
           </span>
-          <ArrowRight size={16} aria-hidden className="shrink-0 text-brand-deep transition-transform group-hover:translate-x-0.5" />
         </Link>
         <button
           type="button"
           onClick={dismiss}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white hover:text-ink"
+          className="mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink hover:bg-white/30"
           aria-label="행사 안내 닫기"
         >
           <X size={18} aria-hidden />

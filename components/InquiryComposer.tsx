@@ -1,35 +1,42 @@
 "use client";
 
-import { CalendarDays, Mail } from "lucide-react";
+import { CalendarDays, CheckCircle2, Send } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useId, useRef, useState, type FormEvent } from "react";
-import CopyButton from "@/components/CopyButton";
 import {
-  MAILTO_MAX,
+  EMAIL_MAX,
   MESSAGE_MAX,
-  buildInquiryBody,
-  buildInquirySubject,
+  NAME_MAX,
+  ORGANIZATION_MAX,
   inquiryTypes,
   resolveInquiryType,
+  validateInquiry,
+  type InquiryErrors,
   type InquiryType,
 } from "@/content/inquiry";
 import { site } from "@/content/site";
 import { isEventActive } from "@/lib/event";
 
 type ComposerProps = { initialType: InquiryType; fromEvent: boolean };
+type FieldKey = keyof InquiryErrors;
+type Status = "idle" | "sending" | "sent" | "failed";
+
+const FIELD_ORDER: FieldKey[] = ["organization", "name", "email", "message"];
+
+const inputClass = (invalid: boolean) =>
+  `mt-2 block min-h-12 w-full rounded-[14px] border bg-white px-4 text-[16px] outline-none focus:border-brand-deep ${
+    invalid ? "border-[#c4321f]" : "border-line"
+  }`;
 
 function Composer({ initialType, fromEvent }: ComposerProps) {
   const [type, setType] = useState<InquiryType>(initialType);
-  const [organization, setOrganization] = useState("");
-  const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [values, setValues] = useState({ organization: "", name: "", email: "", message: "" });
+  const [website, setWebsite] = useState("");
+  const [errors, setErrors] = useState<InquiryErrors>({});
+  const [status, setStatus] = useState<Status>("idle");
   const [notice, setNotice] = useState("");
-  const [previewRequest, setPreviewRequest] = useState(0);
   const [eventActive, setEventActive] = useState(false);
-  const messageRef = useRef<HTMLTextAreaElement>(null);
-  const previewRef = useRef<HTMLTextAreaElement>(null);
-  const emailRef = useRef<HTMLSpanElement>(null);
+  const refs = useRef<Partial<Record<FieldKey, HTMLInputElement | HTMLTextAreaElement | null>>>({});
   const uid = useId();
 
   useEffect(() => {
@@ -40,53 +47,79 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
     setEventActive(fromEvent && isEventActive(site.event));
   }, [fromEvent]);
 
-  const subject = buildInquirySubject(type);
-  const body = buildInquiryBody({ type, organization, name, message });
-  const fullText = `수신: ${site.contactEmail}\n제목: ${subject}\n\n${body}`;
-
-  const validate = () => {
-    if (!message.trim()) {
-      setError("문의 내용을 입력해주세요.");
-      messageRef.current?.focus();
-      return false;
+  const update = (key: FieldKey, value: string) => {
+    setValues((v) => ({ ...v, [key]: value }));
+    if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
+    if (status === "sent" || status === "failed") {
+      setStatus("idle");
+      setNotice("");
     }
-    setError("");
-    return true;
   };
 
-  const onSubmit = (e: FormEvent) => {
+  const focusFirstError = (next: InquiryErrors) => {
+    const first = FIELD_ORDER.find((key) => next[key]);
+    if (first) refs.current[first]?.focus();
+  };
+
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
-    const href = `mailto:${site.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    if (href.length > MAILTO_MAX) {
-      setNotice("내용이 길어 메일 앱으로 바로 전달하기 어렵습니다. ‘문의 내용 복사’를 눌러 메일에 붙여 넣어주세요.");
+    if (status === "sending") return;
+
+    const next = validateInquiry(values);
+    setErrors(next);
+    if (Object.keys(next).length > 0) {
+      setNotice("");
+      focusFirstError(next);
       return;
     }
-    setNotice("메일 앱을 여는 중입니다. 열리지 않으면 ‘문의 내용 복사’로 내용을 옮겨 이메일로 보내주세요.");
-    window.location.href = href;
+
+    setStatus("sending");
+    setNotice("문의를 보내는 중입니다.");
+    try {
+      const res = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, ...values, website }),
+      });
+      const data: { error?: string; errors?: InquiryErrors } = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (data.errors) {
+          setErrors(data.errors);
+          focusFirstError(data.errors);
+        }
+        setStatus("failed");
+        setNotice(data.error ?? "문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요.");
+        return;
+      }
+      setStatus("sent");
+      setNotice("문의가 전달되었습니다. 입력하신 이메일로 회신드리겠습니다.");
+      setValues({ organization: "", name: "", email: "", message: "" });
+    } catch {
+      setStatus("failed");
+      setNotice("네트워크 문제로 문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요.");
+    }
   };
 
-  const selectNode = (node: HTMLElement | null) => {
-    const selection = window.getSelection();
-    if (!node || !selection) return;
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
-
-  useEffect(() => {
-    if (!previewRequest) return;
-    previewRef.current?.focus();
-    previewRef.current?.select();
-  }, [previewRequest]);
-
-  const showPreview = previewRequest > 0;
-  const showPreviewForManualCopy = () => setPreviewRequest((n) => n + 1);
-
-  const messageId = `${uid}-message`;
-  const errorId = `${uid}-error`;
+  const fieldId = (key: FieldKey) => `${uid}-${key}`;
+  const errorId = (key: FieldKey) => `${uid}-${key}-error`;
   const countId = `${uid}-count`;
+
+  const fieldProps = (key: FieldKey) => ({
+    id: fieldId(key),
+    required: true,
+    value: values[key],
+    "aria-invalid": errors[key] ? true : undefined,
+    "aria-describedby": errors[key] ? errorId(key) : undefined,
+  });
+
+  const fieldError = (field: FieldKey) =>
+    errors[field] ? (
+      <p id={errorId(field)} className="mt-2 text-[14px] font-semibold text-[#c4321f]">
+        {errors[field]}
+      </p>
+    ) : null;
+
+  const required = <span className="font-normal text-brand-deep">(필수)</span>;
 
   return (
     <form noValidate onSubmit={onSubmit}>
@@ -128,27 +161,10 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
         <div>
           <h2 className="text-[24px] font-extrabold tracking-[-0.02em] md:text-[30px]">문의 작성</h2>
           <p className="mt-3 text-[16px] text-muted">
-            작성한 내용으로 메일 초안을 만듭니다. 메일 앱에서 내용을 확인한 뒤 직접 전송해주세요. 입력한 내용은 이 사이트에 저장되지 않습니다.
+            작성하신 내용은 뉴아미 담당자에게 바로 전달됩니다. 확인 후 입력하신 이메일로 회신드리겠습니다.
           </p>
-          <div className="mt-8 rounded-[20px] bg-surface p-6">
-            <p className="flex items-center gap-2 text-[14px] font-bold text-muted">
-              <Mail size={16} aria-hidden />
-              업무 이메일
-            </p>
-            <span ref={emailRef} className="mt-2 block text-[20px] font-extrabold tracking-[-0.01em] select-all">
-              {site.contactEmail}
-            </span>
-            <CopyButton
-              className="mt-3"
-              getText={() => site.contactEmail}
-              label="이메일 복사"
-              successMessage="이메일 주소를 복사했습니다."
-              failureMessage="주소를 선택했습니다. 직접 복사해주세요."
-              onFailure={() => selectNode(emailRef.current)}
-            />
-          </div>
           {eventActive ? (
-            <div className="mt-4 rounded-[20px] border border-line bg-white p-6">
+            <div className="mt-8 rounded-[20px] border border-line bg-white p-6">
               <p className="flex items-center gap-2 text-[14px] font-bold text-brand-deep">
                 <CalendarDays size={16} aria-hidden />
                 {site.event.title}
@@ -163,103 +179,105 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
         <div className="flex flex-col gap-6">
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor={`${uid}-org`} className="text-[15px] font-bold">
-                기관/회사명 <span className="font-normal text-muted">(선택)</span>
+              <label htmlFor={fieldId("organization")} className="text-[15px] font-bold">
+                기관/회사명 {required}
               </label>
               <input
-                id={`${uid}-org`}
+                {...fieldProps("organization")}
+                ref={(el) => {
+                  refs.current.organization = el;
+                }}
                 type="text"
                 autoComplete="organization"
-                maxLength={100}
-                value={organization}
-                onChange={(e) => setOrganization(e.target.value)}
-                className="mt-2 block min-h-12 w-full rounded-[14px] border border-line bg-white px-4 text-[16px] outline-none focus:border-brand-deep"
+                maxLength={ORGANIZATION_MAX}
+                onChange={(e) => update("organization", e.target.value)}
+                className={inputClass(!!errors.organization)}
               />
+              {fieldError("organization")}
             </div>
             <div>
-              <label htmlFor={`${uid}-name`} className="text-[15px] font-bold">
-                담당자명 <span className="font-normal text-muted">(선택)</span>
+              <label htmlFor={fieldId("name")} className="text-[15px] font-bold">
+                담당자명 {required}
               </label>
               <input
-                id={`${uid}-name`}
+                {...fieldProps("name")}
+                ref={(el) => {
+                  refs.current.name = el;
+                }}
                 type="text"
                 autoComplete="name"
-                maxLength={50}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-2 block min-h-12 w-full rounded-[14px] border border-line bg-white px-4 text-[16px] outline-none focus:border-brand-deep"
+                maxLength={NAME_MAX}
+                onChange={(e) => update("name", e.target.value)}
+                className={inputClass(!!errors.name)}
               />
+              {fieldError("name")}
             </div>
           </div>
 
           <div>
-            <label htmlFor={messageId} className="text-[15px] font-bold">
-              문의 내용 <span className="font-normal text-brand-deep">(필수)</span>
+            <label htmlFor={fieldId("email")} className="text-[15px] font-bold">
+              이메일 {required}
+            </label>
+            <input
+              {...fieldProps("email")}
+              ref={(el) => {
+                refs.current.email = el;
+              }}
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              maxLength={EMAIL_MAX}
+              placeholder="회신받을 이메일 주소"
+              onChange={(e) => update("email", e.target.value)}
+              className={inputClass(!!errors.email)}
+            />
+            {fieldError("email")}
+          </div>
+
+          <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+            <label htmlFor={`${uid}-website`}>웹사이트</label>
+            <input id={`${uid}-website`} type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+          </div>
+
+          <div>
+            <label htmlFor={fieldId("message")} className="text-[15px] font-bold">
+              문의 내용 {required}
             </label>
             <textarea
-              id={messageId}
-              ref={messageRef}
-              required
+              {...fieldProps("message")}
+              ref={(el) => {
+                refs.current.message = el;
+              }}
               rows={8}
               maxLength={MESSAGE_MAX}
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                if (error && e.target.value.trim()) setError("");
-              }}
-              aria-invalid={error ? true : undefined}
-              aria-describedby={`${error ? `${errorId} ` : ""}${countId}`}
-              className={`mt-2 block w-full resize-y rounded-[14px] border bg-white px-4 py-3 text-[16px] leading-relaxed outline-none focus:border-brand-deep ${
-                error ? "border-[#c4321f]" : "border-line"
-              }`}
+              onChange={(e) => update("message", e.target.value)}
+              aria-describedby={`${errors.message ? `${errorId("message")} ` : ""}${countId}`}
+              className={`${inputClass(!!errors.message)} resize-y py-3 leading-relaxed`}
             />
             <div className="mt-2 flex items-start justify-between gap-4 text-[14px]">
-              <p id={errorId} className="font-semibold text-[#c4321f]">
-                {error}
+              <p id={errorId("message")} className="font-semibold text-[#c4321f]">
+                {errors.message}
               </p>
               <p id={countId} className="shrink-0 text-muted">
-                {message.length.toLocaleString()} / {MESSAGE_MAX.toLocaleString()}자
+                {values.message.length.toLocaleString()} / {MESSAGE_MAX.toLocaleString()}자
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-            <div>
-              <button type="submit" className="btn btn-primary w-full sm:w-auto">
-                <Mail size={18} aria-hidden />
-                메일 앱에서 문의 보내기
-              </button>
-              <p className="mt-2 text-[14px] text-muted">메일 앱이 열리면 내용을 확인한 뒤 전송해주세요.</p>
-            </div>
-            <CopyButton
-              getText={() => fullText}
-              beforeCopy={validate}
-              label="문의 내용 복사"
-              successMessage="문의 내용을 복사했습니다. 메일에 붙여 넣어 보내주세요."
-              failureMessage="복사하지 못했습니다. 아래 내용을 직접 복사해주세요."
-              onFailure={showPreviewForManualCopy}
-            />
+          <div>
+            <button type="submit" disabled={status === "sending"} className="btn btn-primary w-full disabled:cursor-wait disabled:opacity-60 sm:w-auto">
+              <Send size={18} aria-hidden />
+              {status === "sending" ? "보내는 중…" : "문의 보내기"}
+            </button>
           </div>
 
-          <p role="status" className="min-h-6 text-[15px] font-semibold text-ink">
+          <p
+            role="status"
+            className={`flex min-h-6 items-start gap-2 text-[15px] font-semibold ${status === "failed" ? "text-[#c4321f]" : "text-ink"}`}
+          >
+            {status === "sent" ? <CheckCircle2 size={18} aria-hidden className="mt-0.5 shrink-0 text-brand-deep" /> : null}
             {notice}
           </p>
-
-          {showPreview ? (
-            <div>
-              <label htmlFor={`${uid}-preview`} className="text-[15px] font-bold">
-                복사할 문의 내용
-              </label>
-              <textarea
-                id={`${uid}-preview`}
-                ref={previewRef}
-                readOnly
-                rows={10}
-                value={fullText}
-                className="mt-2 block w-full rounded-[14px] border border-line bg-surface px-4 py-3 text-[15px] leading-relaxed"
-              />
-            </div>
-          ) : null}
         </div>
       </div>
     </form>

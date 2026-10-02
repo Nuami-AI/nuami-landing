@@ -45,6 +45,7 @@ export default function NuamiPage() {
       <PageHeading
         eyebrow="NUAMI"
         pageName="AI 생활 행동가이드"
+        image="product"
         title="지금 필요한 행동을, 한눈에 이해할 수 있도록."
         description="상황을 입력하면 필요한 준비와 행동 순서, 놓치기 쉬운 맥락을 함께 살펴볼 수 있도록 돕습니다."
       >
