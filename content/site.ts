@@ -108,9 +108,9 @@ export const ogImage = { url: "/og-image.jpg", width: 1024, height: 512 };
 
 // 접속 도메인별 GA4 측정 ID. 목록에 없는 도메인(localhost, *.vercel.app 등)에서는 GA를 불러오지 않습니다.
 export const gaMeasurementIds: Record<string, string | null> = {
-  "nuami.kr": "G-KTS5CVN20N",
-  "www.nuami.kr": "G-KTS5CVN20N",
-  "go.nuami.kr": "G-VPC7EJ9E4X",
+  "nuami.kr": "G-WH50WFXR76",
+  "www.nuami.kr": "G-WH50WFXR76",
+  "go.nuami.kr": "G-R452P6BN3L",
 };
 
 export const guideCards = [
