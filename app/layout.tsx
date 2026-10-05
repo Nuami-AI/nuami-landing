@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             d.getElementsByTagName("head")[0].appendChild(b);
         }
     };w.__beusablerumclient__.load(a + "?url=" + encodeURIComponent(d.URL));
-})(window, document, "//rum.beusable.net/load/b260824e143014u852");`}
+})(window, document, "//rum.beusable.net/load/b260927e125309u083");`}
         </Script>
       </body>
     </html>
