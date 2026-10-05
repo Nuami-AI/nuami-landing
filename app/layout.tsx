@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import ExhibitionBar from "@/components/ExhibitionBar";
 import Footer from "@/components/Footer";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import Header from "@/components/Header";
-import { seo, site } from "@/content/site";
+import { ogImage, seo, site } from "@/content/site";
 import "./globals.css";
 
 const pretendard = localFont({
@@ -27,13 +29,13 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     title: seo.home.title,
     description: seo.home.description,
-    ...(site.canonicalUrl ? { images: [{ url: "/og-image.png", width: 1200, height: 630, alt: seo.home.title }] } : {}),
+    ...(site.canonicalUrl ? { images: [{ ...ogImage, alt: seo.home.title }] } : {}),
   },
   twitter: {
     card: "summary_large_image",
     title: seo.home.title,
     description: seo.home.description,
-    ...(site.canonicalUrl ? { images: ["/og-image.png"] } : {}),
+    ...(site.canonicalUrl ? { images: [ogImage.url] } : {}),
   },
 };
 
@@ -55,6 +57,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <GoogleAnalytics />
+        <Script id="beusable-rum" strategy="afterInteractive">
+          {`(function(w, d, a){
+    w.__beusablerumclient__ = {
+        load : function(src){
+            var b = d.createElement("script");
+            b.src = src; b.async=true; b.type = "text/javascript";
+            d.getElementsByTagName("head")[0].appendChild(b);
+        }
+    };w.__beusablerumclient__.load(a + "?url=" + encodeURIComponent(d.URL));
+})(window, document, "//rum.beusable.net/load/b260824e143014u852");`}
+        </Script>
       </body>
     </html>
   );

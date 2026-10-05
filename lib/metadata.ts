@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { site } from "@/content/site";
+import { ogImage, site } from "@/content/site";
 
 type PageMetaInput = {
   title: string;
@@ -20,13 +20,13 @@ export function pageMetadata({ title, description, path, type = "website" }: Pag
       locale: "ko_KR",
       title,
       description,
-      ...(ready ? { url: path, images: [{ url: "/og-image.png", width: 1200, height: 630, alt: title }] } : {}),
+      ...(ready ? { url: path, images: [{ ...ogImage, alt: title }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(ready ? { images: ["/og-image.png"] } : {}),
+      ...(ready ? { images: [ogImage.url] } : {}),
     },
   };
 }

@@ -2,6 +2,8 @@ import "server-only";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 import { buildInquiryBody, buildInquirySubject, isInquiryType, validateInquiry, type InquiryFields } from "@/content/inquiry";
+import { MAIL_LOGO_CID, buildInquiryHtml } from "@/lib/mail/inquiryTemplate";
+import { MAIL_LOGO_PNG_BASE64 } from "@/lib/mail/logo";
 
 export const runtime = "nodejs";
 
@@ -52,13 +54,24 @@ export async function POST(request: Request) {
     auth: { user: SMTP_USER, pass: SMTP_PASS },
   });
 
+  const subject = `${buildInquirySubject(fields.type)} ${fields.organization} / ${fields.name}`;
+
   try {
     await transporter.sendMail({
       from: { name: "NUAMI 웹사이트", address: SMTP_FROM },
       to: INQUIRY_TO,
       replyTo: { name: fields.name, address: fields.email },
-      subject: `${buildInquirySubject(fields.type)} ${fields.organization} / ${fields.name}`,
+      subject,
       text: buildInquiryBody(fields),
+      html: buildInquiryHtml(fields, subject),
+      attachments: [
+        {
+          filename: "nuami-logo.png",
+          content: Buffer.from(MAIL_LOGO_PNG_BASE64, "base64"),
+          contentType: "image/png",
+          cid: MAIL_LOGO_CID,
+        },
+      ],
     });
   } catch (error) {
     console.error("[inquiry] 메일 발송 실패", error);

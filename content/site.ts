@@ -22,7 +22,7 @@ export const site: SiteConfig = {
   brandName: "Nuami",
   contactEmail: "hello@nuami.kr",
   serviceUrl: null,
-  canonicalUrl: null,
+  canonicalUrl: "https://nuami.kr",
   legalCompanyName: null,
   registrationNumber: null,
   foundedAt: null,
@@ -102,6 +102,15 @@ export const images = {
     width: 2560,
     height: 1439,
   },
+};
+
+export const ogImage = { url: "/og-image.jpg", width: 1024, height: 512 };
+
+// 접속 도메인별 GA4 측정 ID. 목록에 없는 도메인(localhost, *.vercel.app 등)에서는 GA를 불러오지 않습니다.
+export const gaMeasurementIds: Record<string, string | null> = {
+  "nuami.kr": "G-KTS5CVN20N",
+  "www.nuami.kr": "G-KTS5CVN20N",
+  "go.nuami.kr": "G-VPC7EJ9E4X",
 };
 
 export const guideCards = [
