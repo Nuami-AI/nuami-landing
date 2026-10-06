@@ -325,6 +325,35 @@
   outline-offset: -3px;
 }
 
+/* 모바일에서 카드 목록을 좌우 스크롤로 전환. 레이어 밖에 두어 grid/flex-col 유틸리티보다 우선합니다. */
+@media (max-width: 767.98px) {
+  .mobile-rail {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 20px;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .mobile-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-rail > * {
+    flex: 0 0 82%;
+    max-width: 340px;
+    scroll-snap-align: start;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

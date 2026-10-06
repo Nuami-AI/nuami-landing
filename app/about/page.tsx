@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ListOrdered, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { ListOrdered, ShieldCheck, Sparkles } from "lucide-react";
 import InquiryCTA from "@/components/InquiryCTA";
 import PageHeading from "@/components/PageHeading";
 import SectionHeading from "@/components/SectionHeading";
-import { history, historyNote, supportBase } from "@/content/history";
-import { images, offices, seo } from "@/content/site";
+import { history, supportBase } from "@/content/history";
+import { images, seo } from "@/content/site";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({ ...seo.about, path: "/about" });
@@ -55,7 +55,7 @@ export default function AboutPage() {
             </p>
           </div>
           <h3 className="sr-only">접근 원칙</h3>
-          <ul className="mt-12 grid gap-4 md:grid-cols-3 md:gap-5">
+          <ul className="mobile-rail mt-12 grid gap-4 md:grid-cols-3 md:gap-5">
             {principles.map((p, i) => (
               <li key={p.title} className="rounded-[20px] bg-white p-6 md:p-8">
                 <span className="flex items-center justify-between">
@@ -74,18 +74,34 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 연혁 */}
+      {/* 히스토리 */}
       <section aria-labelledby="history-title" className="section-y bg-white">
-        <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
-          <div>
-            <SectionHeading id="history-title" eyebrow="HISTORY" title="연혁" />
-            <p className="mt-4 text-[14px] text-muted">{historyNote}</p>
-          </div>
-          <ol className="border-t border-ink">
-            {history.map((h) => (
-              <li key={h.text} className="grid grid-cols-[72px_1fr] gap-4 border-b border-line py-5 md:grid-cols-[110px_1fr] md:py-6">
-                <span className="text-[15px] font-extrabold text-brand-deep md:text-[17px]">{h.when}</span>
-                <span className="text-[16px] font-semibold md:text-[18px]">{h.text}</span>
+        <div className="container-x">
+          <SectionHeading id="history-title" eyebrow="HISTORY" title="히스토리" />
+          <ol className="mt-10 border-t border-ink md:mt-14">
+            {history.map((y) => (
+              <li key={y.year} className="grid gap-5 border-b border-line py-8 md:grid-cols-[200px_1fr] md:gap-8 md:py-12 lg:grid-cols-[260px_1fr]">
+                <h3 className="text-[32px] leading-none font-extrabold tracking-[-0.03em] text-brand-deep tabular-nums md:sticky md:top-[calc(var(--header-h)+32px)] md:self-start md:text-[44px]">
+                  {y.year}년
+                </h3>
+                <ol className="flex flex-col gap-7 md:gap-9">
+                  {y.months.map((m) => (
+                    <li key={m.month} className="grid grid-cols-[52px_1fr] gap-3 md:grid-cols-[88px_1fr] md:gap-6">
+                      <h4 className="text-[17px] leading-[1.6] font-extrabold tabular-nums md:text-[19px]">
+                        {m.month}월<span className="sr-only">, {y.year}년</span>
+                      </h4>
+                      <ul className="flex flex-col gap-4 md:gap-5">
+                        {m.items.map((item) => (
+                          <li key={item.text} className="relative pl-5 break-keep">
+                            <span aria-hidden className="absolute top-[0.7em] left-0 h-1.5 w-1.5 bg-[#c9cdd6]" />
+                            <p className="text-[16px] leading-[1.6] font-semibold text-ink md:text-[18px]">{item.text}</p>
+                            {item.note ? <p className="mt-1.5 text-[14px] text-muted md:text-[15px]">{item.note}</p> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ol>
               </li>
             ))}
           </ol>
@@ -101,29 +117,11 @@ export default function AboutPage() {
             title="함께 성장하는 기반."
             description="뉴아미의 제품 개발과 사업화를 뒷받침하는 입주, 지원 프로그램입니다."
           />
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mobile-rail mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {supportBase.map((s) => (
               <li key={s.name} className="flex min-h-[160px] flex-col justify-between rounded-[20px] bg-white p-6">
                 <span className="text-[17px] leading-snug font-extrabold md:text-[18px]">{s.name}</span>
                 <span className="mt-4 self-start rounded-full border border-line px-3 py-1 text-[13px] font-bold text-muted">{s.status}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* 사업장 */}
-      <section aria-labelledby="office-title" className="section-y bg-white pb-0 md:pb-0">
-        <div className="container-x">
-          <SectionHeading id="office-title" eyebrow="OFFICES" title="사업장" />
-          <ul className="mt-10 grid gap-4 md:grid-cols-2">
-            {offices.map((o) => (
-              <li key={o.label} className="flex gap-4 rounded-[20px] border border-line p-6 md:p-8">
-                <MapPin size={22} aria-hidden className="mt-0.5 shrink-0 text-brand-deep" />
-                <div>
-                  <h3 className="text-[18px] font-extrabold">{o.label}</h3>
-                  <p className="mt-1 text-[16px] text-muted">{o.address}</p>
-                </div>
               </li>
             ))}
           </ul>

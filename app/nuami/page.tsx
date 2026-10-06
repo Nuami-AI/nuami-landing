@@ -91,7 +91,7 @@ export default function NuamiPage() {
             id="guide-demo-title"
             eyebrow="3-CARD GUIDE"
             title={"상황, 행동, 맥락. 세\u00a0장으로 연결합니다."}
-            description="상황을 선택하면 세 장의 카드 내용이 함께 바뀝니다."
+            // description="상황을 선택하면 세 장의 카드 내용이 함께 바뀝니다."
           />
           <GuideDemo />
         </div>
@@ -101,8 +101,8 @@ export default function NuamiPage() {
       <section aria-labelledby="scenes-title" className="section-y bg-surface">
         <div className="container-x">
           <SectionHeading id="scenes-title" eyebrow="LIFE SCENES" title="생활의 여러 순간에 필요한 가이드." />
-          <p className="mt-4 text-[14px] text-muted">아래는 뉴아미가 다루는 예시 적용 장면입니다.</p>
-          <ul className="mt-10 flex flex-col gap-4">
+          {/* <p className="mt-4 text-[14px] text-muted">아래는 뉴아미가 다루는 예시 적용 장면입니다.</p> */}
+          <ul className="mobile-rail mt-10 flex flex-col gap-4">
             {scenes.map((s, i) => (
               <li key={s.title} className="grid items-center gap-6 rounded-[20px] bg-white p-6 md:grid-cols-[auto_1fr_1.1fr] md:gap-10 md:p-9">
                 <span aria-hidden className="inline-flex h-14 w-14 items-center justify-center rounded-[16px] bg-lavender text-brand-deep">
@@ -134,9 +134,9 @@ export default function NuamiPage() {
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-16">
           <div>
             <SectionHeading id="basis-title" eyebrow="HOW WE GUIDE" title="공식정보에, 실제 생활의 맥락을 더합니다." />
-            <p className="mt-5 text-[15px] text-muted">
+            {/* <p className="mt-5 text-[15px] text-muted">
               검색 증강 생성(RAG)과 역할을 나눈 AI 에이전트 구조를 활용하는 방향으로 개발하고 있습니다.
-            </p>
+            </p> */}
           </div>
           <ol className="border-t border-ink">
             {basis.map((b, i) => (
@@ -158,7 +158,7 @@ export default function NuamiPage() {
           <h2 id="next-title" className="sr-only">
             다음으로 볼 내용
           </h2>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="mobile-rail grid gap-4 md:grid-cols-2">
             <Link href="/solutions" className="group flex flex-col justify-between gap-8 rounded-[20px] bg-surface p-7 md:p-10">
               <span>
                 <span className="eyebrow">FOR INSTITUTIONS</span>

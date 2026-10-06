@@ -5,12 +5,6 @@ import { useRef, useState, type KeyboardEvent } from "react";
 import { scenarios } from "@/content/scenarios";
 import { guideCards, guideDisclaimer } from "@/content/site";
 
-const cardStyles = {
-  situation: "bg-lavender",
-  action: "border-2 border-brand bg-white",
-  context: "bg-coral-soft",
-} as const;
-
 export default function GuideDemo() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [announcement, setAnnouncement] = useState("");
@@ -83,13 +77,13 @@ export default function GuideDemo() {
                 <span>“{active.question}”</span>
               </p>
 
-              <ol className="mt-5 grid gap-4 md:grid-cols-3">
+              <ol className="mobile-rail mt-5 grid gap-4 md:grid-cols-3">
                 {guideCards.map((card, ci) => {
                   const content = active[card.key];
                   return (
-                    <li key={card.key} className={`flex flex-col rounded-[20px] p-6 md:p-7 ${cardStyles[card.key]}`}>
+                    <li key={card.key} className="flex flex-col rounded-[20px] border border-line bg-white p-6 md:p-7">
                       <div className="flex items-center justify-between gap-3">
-                        <span className="rounded-full bg-white px-3 py-1 text-[12px] font-extrabold tracking-[0.12em] text-brand-deep uppercase">
+                        <span className="rounded-full bg-lavender px-3 py-1 text-[12px] font-extrabold tracking-[0.12em] text-brand-deep uppercase">
                           {card.label}
                         </span>
                         <span aria-hidden className="text-[14px] font-extrabold text-muted">
@@ -108,7 +102,7 @@ export default function GuideDemo() {
         </div>
       ))}
 
-      <p className="mt-4 text-[14px] text-muted">{guideDisclaimer}</p>
+      <p className="mt-4 text-[14px] text-accent">{guideDisclaimer}</p>
       <p className="sr-only-live" aria-live="polite">
         {announcement}
       </p>

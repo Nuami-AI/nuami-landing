@@ -8,8 +8,6 @@ export default function NewsBoard({ items }: { items: NewsItem[] }) {
   const [filter, setFilter] = useState<NewsFilter>("all");
   const categories = newsFilters.find((f) => f.id === filter)!.categories;
   const visible = items.filter((item) => categories.includes(item.category));
-  const featured = visible.find((item) => item.featured);
-  const rest = visible.filter((item) => item !== featured);
   const filterLabel = newsFilters.find((f) => f.id === filter)!.label;
 
   return (
@@ -43,22 +41,13 @@ export default function NewsBoard({ items }: { items: NewsItem[] }) {
           이 분류에 등록된 소식이 아직 없습니다.
         </p>
       ) : (
-        <>
-          {featured ? (
-            <div className="mt-10">
-              <NewsCard item={featured} variant="featured" headingLevel="h2" />
-            </div>
-          ) : null}
-          {rest.length ? (
-            <ul className="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-              {rest.map((item) => (
-                <li key={item.slug}>
-                  <NewsCard item={item} headingLevel="h2" />
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </>
+        <ul className="mobile-rail mt-10 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((item) => (
+            <li key={item.slug}>
+              <NewsCard item={item} headingLevel="h2" />
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

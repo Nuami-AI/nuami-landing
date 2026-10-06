@@ -43,7 +43,7 @@ export default function SolutionsPage() {
       <section aria-labelledby="scope-title" className="section-y bg-surface">
         <div className="container-x grid gap-10 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
           <SectionHeading id="scope-title" eyebrow="SCOPE" title="함께 정하는 협업 범위" />
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="mobile-rail grid gap-4 sm:grid-cols-2">
             {scope.map((s, i) => (
               <div key={s.title} className="rounded-[20px] bg-white p-6 md:p-7">
                 <dt>
@@ -66,7 +66,7 @@ export default function SolutionsPage() {
             id="example-title"
             eyebrow="EXAMPLE"
             title="기관 안내자료가 행동가이드가 되면"
-            description="기대 적용 방식을 보여주는 예시입니다. 실제 기관 자료나 도입 결과가 아닙니다."
+            // description="기대 적용 방식을 보여주는 예시입니다. 실제 기관 자료나 도입 결과가 아닙니다."
           />
           <div className="mt-10 grid items-stretch gap-4 md:grid-cols-[1fr_auto_1.2fr] md:gap-6">
             <div className="rounded-[20px] border border-line bg-surface p-6 md:p-8">
@@ -105,9 +105,9 @@ export default function SolutionsPage() {
             id="process-title"
             eyebrow="PROCESS"
             title="협업 절차"
-            description="소개를 위한 일반적인 절차이며, 확정된 일정이나 계약 조건이 아닙니다."
+            // description="소개를 위한 일반적인 절차이며, 확정된 일정이나 계약 조건이 아닙니다."
           />
-          <ol className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <ol className="mobile-rail mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {steps.map((step, i) => (
               <li key={step} className="flex items-center gap-4 rounded-[18px] bg-white p-5 lg:flex-col lg:items-start lg:p-6">
                 <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-lavender text-[15px] font-extrabold text-brand-deep">
@@ -124,7 +124,7 @@ export default function SolutionsPage() {
       <section aria-labelledby="outcome-title" className="section-y bg-white pb-0 md:pb-0">
         <div className="container-x">
           <SectionHeading id="outcome-title" eyebrow="DIRECTION" title="함께 기대하는 방향" />
-          <ul className="mt-10 grid border-t border-line md:grid-cols-3">
+          <ul className="mobile-rail mt-10 grid border-t border-line md:grid-cols-3">
             {outcomes.map((o, i) => (
               <li key={o.who} className={`border-b border-line py-7 md:border-b-0 md:py-9 ${i > 0 ? "md:border-l md:pl-8" : ""} ${i < 2 ? "md:pr-8" : ""}`}>
                 <h3 className="text-[20px] font-extrabold md:text-[22px]">{o.who}</h3>

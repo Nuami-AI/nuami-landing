@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CheckCircle2, Send } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronDown, Send } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useId, useRef, useState, type FormEvent } from "react";
 import {
@@ -123,7 +123,36 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
 
   return (
     <form noValidate onSubmit={onSubmit}>
-      <fieldset>
+      <div className="md:hidden">
+        <h2 className="text-[24px] font-extrabold tracking-[-0.02em]">
+          <label htmlFor={`${uid}-type`}>문의 목적을 선택해주세요</label>
+        </h2>
+        <div className="relative mt-5">
+          <select
+            id={`${uid}-type`}
+            value={type}
+            onChange={(e) => setType(e.target.value as InquiryType)}
+            aria-describedby={`${uid}-type-desc`}
+            className="block min-h-14 w-full appearance-none rounded-[14px] border border-brand-deep bg-lavender py-3 pr-12 pl-4 text-[17px] font-extrabold text-ink outline-none focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-brand-deep"
+          >
+            {inquiryTypes.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.title}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={20}
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-brand-deep"
+          />
+        </div>
+        <p id={`${uid}-type-desc`} className="mt-3 text-[15px] text-muted">
+          {inquiryTypes.find((t) => t.id === type)?.description}
+        </p>
+      </div>
+
+      <fieldset className="hidden md:block">
         <legend className="w-full">
           <h2 className="text-[24px] font-extrabold tracking-[-0.02em] md:text-[30px]">문의 목적을 선택해주세요</h2>
         </legend>

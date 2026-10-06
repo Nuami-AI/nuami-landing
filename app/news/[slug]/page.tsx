@@ -79,7 +79,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                 목록으로 돌아가기
               </Link>
             </div>
-            <ul className="mt-10 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mobile-rail mt-10 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((n) => (
                 <li key={n.slug}>
                   <NewsCard item={n} />

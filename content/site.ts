@@ -54,7 +54,7 @@ export const seo = {
   },
   about: {
     title: "회사소개, 뉴아미 Nuami",
-    description: "낯선 순간에도 스스로 다음 행동을 선택할 수 있도록. 뉴아미의 미션과 접근 원칙, 연혁을 소개합니다.",
+    description: "낯선 순간에도 스스로 다음 행동을 선택할 수 있도록. 뉴아미의 미션과 접근 원칙, 히스토리를 소개합니다.",
   },
   nuami: {
     title: "뉴아미 서비스, 상황과 행동을 연결하는 3-Card",
@@ -119,7 +119,7 @@ export const guideCards = [
   { key: "context", label: "Context", title: "미리 알면 좋아요", description: "표현과 놓치기 쉬운 맥락을 짚어줍니다." },
 ] as const;
 
-export const guideDisclaimer = "서비스 이해를 위한 예시입니다. 실제 안내는 상황과 기관 기준에 따라 달라질 수 있습니다.";
+export const guideDisclaimer = "*서비스 이해를 위한 예시이며, 실제 안내는 상황과 기관 기준에 따라 달라질 수 있습니다.";
 
 export function isExternalServiceReady(): boolean {
   return typeof site.serviceUrl === "string" && /^https?:\/\//.test(site.serviceUrl);

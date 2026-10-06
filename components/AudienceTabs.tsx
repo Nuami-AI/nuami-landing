@@ -38,8 +38,8 @@ function Tabs({ initial }: { initial: AudienceId }) {
   };
 
   return (
-    <div className="mt-10 md:mt-12">
-      <div role="tablist" aria-label="적용 대상" className="grid gap-2 sm:inline-grid sm:grid-cols-2">
+    <div className="mt-10 overflow-hidden rounded-[24px] border border-line bg-white md:mt-12">
+      <div role="tablist" aria-label="적용 대상" className="grid grid-cols-2 border-b-2 border-brand-deep">
         {audiences.map((a, i) => {
           const selected = a.id === active;
           const Icon = icons[a.id];
@@ -57,12 +57,27 @@ function Tabs({ initial }: { initial: AudienceId }) {
               tabIndex={selected ? 0 : -1}
               onClick={() => select(a.id)}
               onKeyDown={onKeyDown}
-              className={`inline-flex min-h-13 items-center justify-center gap-2 rounded-full border px-6 text-[16px] font-bold transition-colors ${
-                selected ? "border-brand-deep bg-brand-deep text-white" : "border-line bg-white text-ink hover:border-brand-deep"
+              className={`group relative flex flex-col items-start gap-3 p-4 text-left break-keep transition-colors -outline-offset-4 md:flex-row md:items-center md:gap-4 md:px-8 md:py-6 ${
+                selected ? "bg-brand-deep text-white" : "bg-surface text-muted hover:bg-lavender hover:text-ink"
               }`}
             >
-              <Icon size={18} aria-hidden />
-              {a.label}
+              <span
+                aria-hidden
+                className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] transition-colors md:h-12 md:w-12 md:rounded-[14px] ${
+                  selected ? "bg-white/15 text-white" : "bg-white text-muted group-hover:text-brand-deep"
+                }`}
+              >
+                <Icon size={22} className="md:size-6" />
+              </span>
+              <span className="block min-w-0">
+                <span className="block text-[16px] leading-snug font-extrabold tracking-[-0.02em] md:text-[21px]">{a.label}</span>
+                <span aria-hidden className={`mt-1 hidden text-[14px] md:block ${selected ? "text-white/75" : "text-muted"}`}>
+                  {a.who.join(" · ")}
+                </span>
+              </span>
+              {selected ? (
+                <span aria-hidden className="absolute -bottom-[7px] left-8 h-3 w-3 rotate-45 bg-brand-deep md:left-12" />
+              ) : null}
             </button>
           );
         })}
@@ -76,10 +91,10 @@ function Tabs({ initial }: { initial: AudienceId }) {
           aria-labelledby={`audience-tab-${a.id}`}
           hidden={a.id !== active}
           tabIndex={0}
-          className="mt-6 rounded-[24px] focus-visible:outline-offset-4"
+          className="-outline-offset-4"
         >
           {a.id === active ? (
-            <div className="fade-swap grid gap-6 rounded-[24px] border border-line bg-white p-6 md:grid-cols-[1.2fr_1fr] md:gap-12 md:p-10">
+            <div className="fade-swap grid gap-6 p-6 md:grid-cols-[1.2fr_1fr] md:gap-12 md:p-10">
               <div>
                 <h3 className="text-[22px] leading-snug font-extrabold tracking-[-0.02em] md:text-[28px]">{a.title}</h3>
                 <p className="mt-3 text-[16px] text-muted md:text-[17px]">{a.description}</p>
@@ -92,8 +107,8 @@ function Tabs({ initial }: { initial: AudienceId }) {
                   ))}
                 </ul>
               </div>
-              <div className="rounded-[20px] bg-surface p-6">
-                <p className="text-[14px] font-bold text-muted">예시 적용 장면</p>
+              <div className="rounded-[20px] bg-lavender p-6">
+                <p className="text-[14px] font-bold text-brand-deep">예시 적용 장면</p>
                 <ul className="mt-3 flex flex-col gap-3">
                   {a.scenes.map((scene) => (
                     <li key={scene} className="flex items-center gap-3 text-[17px] font-bold">

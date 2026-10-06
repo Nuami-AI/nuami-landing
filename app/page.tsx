@@ -3,9 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Building2, Compass, GraduationCap, MessageSquare } from "lucide-react";
 import InquiryCTA from "@/components/InquiryCTA";
-import NewsThumb from "@/components/NewsThumb";
+import NewsCard from "@/components/NewsCard";
 import SectionHeading from "@/components/SectionHeading";
-import { categoryLabels, getNewsBySlug } from "@/content/news";
+import { getPublishedNews } from "@/content/news";
 import { guideCards, images, isExternalServiceReady, seo, site } from "@/content/site";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -53,8 +53,7 @@ const organizationJsonLd = {
 
 export default function HomePage() {
   const serviceReady = isExternalServiceReady();
-  const featured = getNewsBySlug("busan-public-data-award");
-  const latest = ["hug-up", "nia-growth-support"].map((slug) => getNewsBySlug(slug)).filter((n) => n !== undefined);
+  const latest = getPublishedNews().slice(0, 3);
 
   return (
     <>
@@ -126,11 +125,11 @@ export default function HomePage() {
             title="정보를 찾는 것에서, 행동하는 것으로."
             description="상황, 행동, 맥락을 세 장의 카드로 정리합니다."
           />
-          <ol className="mt-10 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-5">
+          <ol className="mobile-rail mt-10 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-5">
             {guideCards.map((card, i) => {
               const ex = previewExamples[card.key];
               return (
-                <li key={card.key} className="flex flex-col rounded-[20px] bg-white p-6 md:p-8">
+                <li key={card.key} className="flex flex-col rounded-[20px] border border-line bg-white p-6 md:p-8">
                   <span className="flex items-center justify-between">
                     <span className="text-[12px] font-extrabold tracking-[0.12em] text-brand-deep uppercase">{card.label}</span>
                     <span aria-hidden className="text-[14px] font-extrabold text-muted">
@@ -190,7 +189,7 @@ export default function HomePage() {
             title="유학생의 다음 행동, 기관의 더 나은 안내."
             description="대학과 기관의 안내자료를 유학생이 이해하고 실행할 수 있는 생활 행동가이드로 연결합니다."
           />
-          <div className="mt-10 grid gap-4 md:mt-12 md:grid-cols-2 md:gap-5">
+          <div className="mobile-rail mt-10 grid gap-4 md:mt-12 md:grid-cols-2 md:gap-5">
             {solutionBlocks.map((b) => (
               <div key={b.title} className="flex flex-col rounded-[20px] bg-white p-6 md:p-9">
                 <span aria-hidden className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-lavender text-brand-deep">
@@ -220,7 +219,7 @@ export default function HomePage() {
       <section aria-labelledby="achievement-title" className="section-y bg-white">
         <div className="container-x">
           <SectionHeading id="achievement-title" eyebrow="MILESTONES" title="아이디어를 실제 발걸음으로." />
-          <ul className="mt-10 grid border-t border-line md:mt-12 md:grid-cols-3">
+          <ul className="mobile-rail mt-10 grid border-t border-line md:mt-12 md:grid-cols-3">
             {achievements.map((a, i) => (
               <li key={a.title} className={`border-b border-line md:border-b-0 ${i > 0 ? "md:border-l md:pl-8" : ""} ${i < 2 ? "md:pr-8" : ""}`}>
                 <Link href={a.href} className="group flex h-full flex-col py-7 md:py-9">
@@ -236,7 +235,7 @@ export default function HomePage() {
       </section>
 
       {/* 최신 소식 */}
-      {featured ? (
+      {latest.length ? (
         <section aria-labelledby="latest-title" className="section-y bg-surface">
           <div className="container-x">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -246,38 +245,13 @@ export default function HomePage() {
                 <ArrowRight size={18} aria-hidden />
               </Link>
             </div>
-            <div className="mt-10 grid gap-6 md:mt-12 lg:grid-cols-[1.25fr_1fr] lg:gap-10">
-              <Link href={`/news/${featured.slug}`} className="group flex flex-col overflow-hidden rounded-[24px] bg-white">
-                <NewsThumb item={featured} className="aspect-[16/9] w-full border-0 border-b" />
-                <div className="p-6 md:p-8">
-                  <p className="flex items-center gap-2 text-[14px] font-bold text-muted">
-                    <span className="chip">{categoryLabels[featured.category]}</span>
-                    {featured.dateLabel}
-                  </p>
-                  <h3 className="mt-3 text-[22px] leading-snug font-extrabold tracking-[-0.02em] group-hover:text-brand-deep md:text-[28px]">
-                    {featured.title}
-                  </h3>
-                  <p className="mt-2 text-[16px] text-muted">{featured.excerpt}</p>
-                </div>
-              </Link>
-              <ul className="flex flex-col">
-                {latest.map((n) => (
-                  <li key={n.slug} className="border-b border-line first:border-t">
-                    <Link href={`/news/${n.slug}`} className="group flex items-start justify-between gap-6 py-7">
-                      <div>
-                        <span className="flex items-center gap-2 text-[14px] font-bold text-muted">
-                          <span className="chip">{categoryLabels[n.category]}</span>
-                          {n.dateLabel}
-                        </span>
-                        <h3 className="mt-3 text-[19px] leading-snug font-extrabold group-hover:text-brand-deep md:text-[22px]">{n.title}</h3>
-                        <span className="mt-1.5 block text-[15px] text-muted">{n.excerpt}</span>
-                      </div>
-                      <ArrowRight size={20} aria-hidden className="mt-1 shrink-0 text-brand-deep transition-transform group-hover:translate-x-0.5" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ul className="mobile-rail mt-10 grid gap-x-6 gap-y-12 md:mt-12 md:grid-cols-3">
+              {latest.map((n) => (
+                <li key={n.slug}>
+                  <NewsCard item={n} />
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       ) : null}
