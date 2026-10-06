@@ -1,5 +1,5 @@
 type LogoProps = {
-  tone?: "brand" | "white" | "gray";
+  tone?: "brand" | "white" | "gray" | "placeholder";
   className?: string;
 };
 
@@ -7,6 +7,7 @@ const fills = {
   brand: { mark: "#F97E6D", word: "#8651F2" },
   white: { mark: "#F97E6D", word: "#FFFFFF" },
   gray: { mark: "#6E717C", word: "#A4A7B1" },
+  placeholder: { mark: "#B4B8C1", word: "#B4B8C1" },
 } as const;
 
 export default function Logo({ tone = "brand", className }: LogoProps) {

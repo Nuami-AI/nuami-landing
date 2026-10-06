@@ -2,10 +2,14 @@
 
 import { MessageCircle } from "lucide-react";
 import { useRef, useState, type KeyboardEvent } from "react";
-import { scenarios } from "@/content/scenarios";
-import { guideCards, guideDisclaimer } from "@/content/site";
+import { scenarios as scenariosByLocale } from "@/content/scenarios";
+import { guideCards as guideCardsByLocale, guideDisclaimer } from "@/content/site";
+import type { Locale } from "@/lib/i18n";
 
-export default function GuideDemo() {
+export default function GuideDemo({ locale }: { locale: Locale }) {
+  const scenarios = scenariosByLocale[locale];
+  const guideCards = guideCardsByLocale[locale];
+  const en = locale === "en";
   const [activeIndex, setActiveIndex] = useState(0);
   const [announcement, setAnnouncement] = useState("");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -13,7 +17,11 @@ export default function GuideDemo() {
 
   const select = (index: number, focus = false) => {
     setActiveIndex(index);
-    setAnnouncement(`${scenarios[index].label} 예시로 바뀌었습니다. ${scenarios[index].question}`);
+    setAnnouncement(
+      en
+        ? `Switched to the ${scenarios[index].label} example. ${scenarios[index].question}`
+        : `${scenarios[index].label} 예시로 바뀌었습니다. ${scenarios[index].question}`,
+    );
     if (focus) tabRefs.current[index]?.focus();
   };
 
@@ -32,7 +40,7 @@ export default function GuideDemo() {
 
   return (
     <div className="mt-10 md:mt-12">
-      <div role="tablist" aria-label="상황 선택" className="flex flex-wrap gap-2">
+      <div role="tablist" aria-label={en ? "Choose a situation" : "상황 선택"} className="flex flex-wrap gap-2">
         {scenarios.map((s, i) => {
           const selected = i === activeIndex;
           return (
@@ -102,7 +110,7 @@ export default function GuideDemo() {
         </div>
       ))}
 
-      <p className="mt-4 text-[14px] text-accent">{guideDisclaimer}</p>
+      <p className="mt-4 text-[14px] text-accent">{guideDisclaimer[locale]}</p>
       <p className="sr-only-live" aria-live="polite">
         {announcement}
       </p>

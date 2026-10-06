@@ -2,12 +2,14 @@ import "server-only";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 import { buildInquiryBody, buildInquirySubject, isInquiryType, validateInquiry, type InquiryFields } from "@/content/inquiry";
+import type { Locale } from "@/lib/i18n";
 import { MAIL_LOGO_CID, buildInquiryHtml } from "@/lib/mail/inquiryTemplate";
 import { MAIL_LOGO_PNG_BASE64 } from "@/lib/mail/logo";
 
 export const runtime = "nodejs";
 
 const toText = (value: unknown) => (typeof value === "string" ? value : "");
+const resolveLocale = (value: unknown): Locale => (value === "en" ? "en" : "ko");
 const singleLine = (value: string) => value.replace(/\s+/g, " ").trim();
 
 export async function POST(request: Request) {
@@ -23,8 +25,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  const locale = resolveLocale(payload.locale);
+  const en = locale === "en";
+
   if (!isInquiryType(payload.type)) {
-    return NextResponse.json({ error: "문의 목적을 선택해주세요." }, { status: 400 });
+    return NextResponse.json({ error: en ? "Please select a purpose." : "문의 목적을 선택해주세요." }, { status: 400 });
   }
 
   const fields: InquiryFields = {
@@ -35,15 +40,18 @@ export async function POST(request: Request) {
     message: toText(payload.message).trim(),
   };
 
-  const errors = validateInquiry(fields);
+  const errors = validateInquiry(fields, locale);
   if (Object.keys(errors).length > 0) {
-    return NextResponse.json({ error: "입력 내용을 확인해주세요.", errors }, { status: 400 });
+    return NextResponse.json({ error: en ? "Please check your entries." : "입력 내용을 확인해주세요.", errors }, { status: 400 });
   }
 
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, INQUIRY_TO } = process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !SMTP_FROM || !INQUIRY_TO) {
     console.error("[inquiry] SMTP 환경 변수가 설정되지 않았습니다.");
-    return NextResponse.json({ error: "지금은 문의를 보낼 수 없습니다. 잠시 후 다시 시도해주세요." }, { status: 503 });
+    return NextResponse.json(
+      { error: en ? "We can't send inquiries right now. Please try again later." : "지금은 문의를 보낼 수 없습니다. 잠시 후 다시 시도해주세요." },
+      { status: 503 },
+    );
   }
 
   const port = Number(SMTP_PORT) || 465;
@@ -54,7 +62,7 @@ export async function POST(request: Request) {
     auth: { user: SMTP_USER, pass: SMTP_PASS },
   });
 
-  const subject = `${buildInquirySubject(fields.type)} ${fields.organization} / ${fields.name}`;
+  const subject = `${buildInquirySubject(fields.type)}${en ? " (영문 페이지)" : ""} ${fields.organization} / ${fields.name}`;
 
   try {
     await transporter.sendMail({
@@ -75,7 +83,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("[inquiry] 메일 발송 실패", error);
-    return NextResponse.json({ error: "문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요." }, { status: 502 });
+    return NextResponse.json(
+      { error: en ? "We couldn't send your inquiry. Please try again later." : "문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요." },
+      { status: 502 },
+    );
   }
 
   return NextResponse.json({ ok: true });

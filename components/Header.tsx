@@ -6,13 +6,54 @@ import { ArrowUpRight, ChevronRight, Mail, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Logo from "@/components/Logo";
 import { isExternalServiceReady, nav, site } from "@/content/site";
+import { localePath, stripLocale, type Locale } from "@/lib/i18n";
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function Header() {
-  const pathname = usePathname();
+const copy = {
+  ko: { home: "Nuami 홈", main: "주요 메뉴", mobile: "모바일 메뉴", open: "메뉴 열기", close: "메뉴 닫기", service: "서비스 이용하기", newWindow: "(새 창)", contact: "문의하기", language: "언어 선택" },
+  en: { home: "Nuami home", main: "Main menu", mobile: "Mobile menu", open: "Open menu", close: "Close menu", service: "Use the service", newWindow: "(opens in a new window)", contact: "Contact", language: "Language" },
+} as const;
+
+const languageNames = { en: "English", ko: "한국어" } as const;
+
+function LanguageSwitch({ locale, path, label, className = "" }: { locale: Locale; path: string; label: string; className?: string }) {
+  return (
+    <div role="group" aria-label={label} className={`flex items-center text-[14px] font-extrabold tracking-[0.02em] ${className}`}>
+      {(["en", "ko"] as const).map((l, i) => (
+        <span key={l} className="flex items-center">
+          {i > 0 ? (
+            <span aria-hidden className="px-0.5 text-[#c4c8d0]">
+              /
+            </span>
+          ) : null}
+          {l === locale ? (
+            <span aria-current="true" className="inline-flex min-h-11 min-w-9 items-center justify-center text-brand-deep">
+              <span aria-hidden>{l.toUpperCase()}</span>
+              <span className="sr-only">{languageNames[l]}</span>
+            </span>
+          ) : (
+            <Link
+              href={localePath(l, path)}
+              hrefLang={l}
+              lang={l}
+              className="inline-flex min-h-11 min-w-9 items-center justify-center text-muted transition-colors hover:text-ink"
+            >
+              <span aria-hidden>{l.toUpperCase()}</span>
+              <span className="sr-only">{languageNames[l]}</span>
+            </Link>
+          )}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export default function Header({ locale }: { locale: Locale }) {
+  const pathname = stripLocale(usePathname());
+  const t = copy[locale];
   const [open, setOpen] = useState(false);
   const [panelTop, setPanelTop] = useState(0);
   const headerRef = useRef<HTMLElement>(null);
@@ -86,15 +127,15 @@ export default function Header() {
       >
         <div className="container-x flex h-[var(--header-h)] items-center justify-between gap-4">
           <Link
-            href="/"
+            href={localePath(locale, "/")}
             className="inline-flex min-h-11 items-center"
-            aria-label="Nuami 홈"
+            aria-label={t.home}
           >
             <Logo className="h-6 w-auto md:h-7" />
           </Link>
 
           <nav
-            aria-label="주요 메뉴"
+            aria-label={t.main}
             className="hidden items-center gap-1 md:flex"
           >
             {nav.map((item) => {
@@ -102,7 +143,7 @@ export default function Header() {
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={localePath(locale, item.href)}
                   aria-current={active ? "page" : undefined}
                   className={`relative inline-flex min-h-11 items-center px-3 text-[16px] font-semibold transition-colors lg:px-4 ${
                     active
@@ -110,7 +151,7 @@ export default function Header() {
                       : "text-ink hover:text-brand-deep"
                   }`}
                 >
-                  {item.label}
+                  {item.label[locale]}
                   {active ? (
                     <span
                       aria-hidden
@@ -127,11 +168,13 @@ export default function Header() {
                 rel="noopener noreferrer"
                 className="btn btn-primary ml-3 !min-h-11 !px-5 text-[15px]"
               >
-                서비스 이용하기
+                {t.service}
                 <ArrowUpRight size={16} aria-hidden />
-                <span className="sr-only">(새 창)</span>
+                <span className="sr-only">{t.newWindow}</span>
               </a>
             ) : null}
+            <span aria-hidden className="mx-2 h-4 w-px bg-line lg:mx-3" />
+            <LanguageSwitch locale={locale} path={pathname} label={t.language} />
           </nav>
 
           <button
@@ -140,7 +183,7 @@ export default function Header() {
             className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink hover:bg-surface md:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
-            aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+            aria-label={open ? t.close : t.open}
             onClick={() => (open ? setOpen(false) : openMenu())}
           >
             {open ? (
@@ -159,14 +202,14 @@ export default function Header() {
         style={{ top: panelTop }}
         className="fixed inset-x-0 bottom-0 z-40 flex flex-col bg-white md:hidden"
       >
-        <nav aria-label="모바일 메뉴" className="flex-1 overflow-y-auto">
+        <nav aria-label={t.mobile} className="flex-1 overflow-y-auto">
           <ul>
             {nav.map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <li key={item.href} className="border-b border-line">
                   <Link
-                    href={item.href}
+                    href={localePath(locale, item.href)}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={`container-x flex min-h-[68px] items-center justify-between gap-4 text-[19px] font-extrabold tracking-[-0.01em] ${
@@ -174,7 +217,7 @@ export default function Header() {
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      {item.label}
+                      {item.label[locale]}
                       {active ? (
                         <span
                           aria-hidden
@@ -200,16 +243,19 @@ export default function Header() {
                 rel="noopener noreferrer"
                 className="btn btn-primary w-full"
               >
-                서비스 이용하기
+                {t.service}
                 <ArrowUpRight size={16} aria-hidden />
-                <span className="sr-only">(새 창)</span>
+                <span className="sr-only">{t.newWindow}</span>
               </a>
             </div>
           ) : null}
         </nav>
 
         <div className="container-x shrink-0 border-t border-line py-6">
-          <p className="text-[15px] font-extrabold">문의하기</p>
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-[15px] font-extrabold">{t.contact}</p>
+            <LanguageSwitch locale={locale} path={pathname} label={t.language} className="-mr-2" />
+          </div>
           <a
             href={`mailto:${site.contactEmail}`}
             className="mt-2 inline-flex min-h-11 items-center gap-2 text-[15px] font-semibold text-muted hover:text-brand-deep"

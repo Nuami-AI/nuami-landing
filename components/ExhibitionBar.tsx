@@ -5,6 +5,7 @@ import { ArrowRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { site } from "@/content/site";
 import { isEventActive } from "@/lib/event";
+import { localePath, type Locale } from "@/lib/i18n";
 
 const DISMISS_KEY = "nuami-event-bar-dismissed";
 
@@ -16,7 +17,7 @@ function readDismissed(): boolean {
   }
 }
 
-export default function ExhibitionBar() {
+export default function ExhibitionBar({ locale }: { locale: Locale }) {
   const [visible, setVisible] = useState(false);
   const { event } = site;
 
@@ -41,7 +42,10 @@ export default function ExhibitionBar() {
     }
   };
 
-  const message = `${event.dateLabel}, ${event.title}에서 뉴아미를 만나보세요.`;
+  const message =
+    locale === "en"
+      ? `Meet Nuami at ${event.title}, ${event.venue}, ${event.dateLabel}.`
+      : `${event.dateLabel}, ${event.title}에서 뉴아미를 만나보세요.`;
   const items = Array.from({ length: 6 }, (_, i) => (
     <span key={i} className="flex shrink-0 items-center gap-2 pr-10">
       {message}
@@ -52,7 +56,7 @@ export default function ExhibitionBar() {
   return (
     <div className="bg-linear-to-r from-brand to-accent text-ink">
       <div className="flex min-h-11 items-center">
-        <Link href="/inquire_all?type=event" className="marquee group relative flex min-h-11 min-w-0 flex-1 items-center overflow-hidden">
+        <Link href={`${localePath(locale, "/inquire_all")}?type=event`} className="marquee group relative flex min-h-11 min-w-0 flex-1 items-center overflow-hidden">
           <span className="sr-only">{message}</span>
           <span aria-hidden className="marquee-track flex w-max text-[14px] font-bold whitespace-nowrap md:text-[15px]">
             <span className="flex shrink-0">{items}</span>
@@ -63,7 +67,7 @@ export default function ExhibitionBar() {
           type="button"
           onClick={dismiss}
           className="mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink hover:bg-white/30"
-          aria-label="행사 안내 닫기"
+          aria-label={locale === "en" ? "Close event notice" : "행사 안내 닫기"}
         >
           <X size={18} aria-hidden />
         </button>

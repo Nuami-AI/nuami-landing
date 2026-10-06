@@ -8,7 +8,7 @@ import {
   MESSAGE_MAX,
   NAME_MAX,
   ORGANIZATION_MAX,
-  inquiryTypes,
+  inquiryTypeCopy,
   resolveInquiryType,
   validateInquiry,
   type InquiryErrors,
@@ -16,8 +16,52 @@ import {
 } from "@/content/inquiry";
 import { site } from "@/content/site";
 import { isEventActive } from "@/lib/event";
+import type { Locale } from "@/lib/i18n";
 
-type ComposerProps = { initialType: InquiryType; fromEvent: boolean };
+const copy = {
+  ko: {
+    sending: "문의를 보내는 중입니다.",
+    failed: "문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요.",
+    sent: "문의가 전달되었습니다. 입력하신 이메일로 회신드리겠습니다.",
+    network: "네트워크 문제로 문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요.",
+    required: "(필수)",
+    chooseType: "문의 목적을 선택해주세요",
+    compose: "문의 작성",
+    composeDesc: "작성하신 내용은 뉴아미 담당자에게 바로 전달됩니다. 확인 후 입력하신 이메일로 회신드리겠습니다.",
+    eventNote: (date: string, venue: string) => `${date}, ${venue}에서 뉴아미를 만나보세요. 현장 미팅이나 행사 관련 문의도 기타 문의로 남겨주세요.`,
+    organization: "기관/회사명",
+    name: "담당자명",
+    email: "이메일",
+    emailPlaceholder: "회신받을 이메일 주소",
+    website: "웹사이트",
+    message: "문의 내용",
+    chars: "자",
+    submitting: "보내는 중…",
+    submit: "문의 보내기",
+  },
+  en: {
+    sending: "Sending your inquiry…",
+    failed: "We couldn't send your inquiry. Please try again later.",
+    sent: "Your inquiry has been sent. We'll reply to the email you entered.",
+    network: "A network problem prevented sending. Please try again later.",
+    required: "(required)",
+    chooseType: "What can we help you with?",
+    compose: "Your message",
+    composeDesc: "Your message goes straight to the Nuami team. We'll review it and reply to the email you provide.",
+    eventNote: (date: string, venue: string) => `Meet Nuami at ${venue}, ${date}. For on-site meetings or event questions, choose Other inquiries.`,
+    organization: "Organization / company",
+    name: "Your name",
+    email: "Email",
+    emailPlaceholder: "Email address for our reply",
+    website: "Website",
+    message: "Message",
+    chars: " characters",
+    submitting: "Sending…",
+    submit: "Send inquiry",
+  },
+};
+
+type ComposerProps = { initialType: InquiryType; fromEvent: boolean; locale: Locale };
 type FieldKey = keyof InquiryErrors;
 type Status = "idle" | "sending" | "sent" | "failed";
 
@@ -28,7 +72,9 @@ const inputClass = (invalid: boolean) =>
     invalid ? "border-[#c4321f]" : "border-line"
   }`;
 
-function Composer({ initialType, fromEvent }: ComposerProps) {
+function Composer({ initialType, fromEvent, locale }: ComposerProps) {
+  const t = copy[locale];
+  const inquiryTypes = inquiryTypeCopy[locale];
   const [type, setType] = useState<InquiryType>(initialType);
   const [values, setValues] = useState({ organization: "", name: "", email: "", message: "" });
   const [website, setWebsite] = useState("");
@@ -65,7 +111,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
     e.preventDefault();
     if (status === "sending") return;
 
-    const next = validateInquiry(values);
+    const next = validateInquiry(values, locale);
     setErrors(next);
     if (Object.keys(next).length > 0) {
       setNotice("");
@@ -74,12 +120,12 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
     }
 
     setStatus("sending");
-    setNotice("문의를 보내는 중입니다.");
+    setNotice(t.sending);
     try {
       const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, ...values, website }),
+        body: JSON.stringify({ type, ...values, website, locale }),
       });
       const data: { error?: string; errors?: InquiryErrors } = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -88,15 +134,15 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
           focusFirstError(data.errors);
         }
         setStatus("failed");
-        setNotice(data.error ?? "문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setNotice(data.error ?? t.failed);
         return;
       }
       setStatus("sent");
-      setNotice("문의가 전달되었습니다. 입력하신 이메일로 회신드리겠습니다.");
+      setNotice(t.sent);
       setValues({ organization: "", name: "", email: "", message: "" });
     } catch {
       setStatus("failed");
-      setNotice("네트워크 문제로 문의를 보내지 못했습니다. 잠시 후 다시 시도해주세요.");
+      setNotice(t.network);
     }
   };
 
@@ -119,13 +165,13 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
       </p>
     ) : null;
 
-  const required = <span className="font-normal text-brand-deep">(필수)</span>;
+  const required = <span className="font-normal text-brand-deep">{t.required}</span>;
 
   return (
     <form noValidate onSubmit={onSubmit}>
       <div className="md:hidden">
         <h2 className="text-[24px] font-extrabold tracking-[-0.02em]">
-          <label htmlFor={`${uid}-type`}>문의 목적을 선택해주세요</label>
+          <label htmlFor={`${uid}-type`}>{t.chooseType}</label>
         </h2>
         <div className="relative mt-5">
           <select
@@ -154,7 +200,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
 
       <fieldset className="hidden md:block">
         <legend className="w-full">
-          <h2 className="text-[24px] font-extrabold tracking-[-0.02em] md:text-[30px]">문의 목적을 선택해주세요</h2>
+          <h2 className="text-[24px] font-extrabold tracking-[-0.02em] md:text-[30px]">{t.chooseType}</h2>
         </legend>
         <div className="mt-6 grid gap-3 md:grid-cols-2 md:gap-4">
           {inquiryTypes.map((t, i) => {
@@ -188,9 +234,9 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
 
       <div className="mt-14 grid gap-10 border-t border-line pt-12 md:mt-20 md:grid-cols-[35fr_65fr] md:gap-14 md:pt-16">
         <div>
-          <h2 className="text-[24px] font-extrabold tracking-[-0.02em] md:text-[30px]">문의 작성</h2>
+          <h2 className="text-[24px] font-extrabold tracking-[-0.02em] md:text-[30px]">{t.compose}</h2>
           <p className="mt-3 text-[16px] text-muted">
-            작성하신 내용은 뉴아미 담당자에게 바로 전달됩니다. 확인 후 입력하신 이메일로 회신드리겠습니다.
+            {t.composeDesc}
           </p>
           {eventActive ? (
             <div className="mt-8 rounded-[20px] border border-line bg-white p-6">
@@ -199,7 +245,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
                 {site.event.title}
               </p>
               <p className="mt-2 text-[16px] text-ink">
-                {site.event.dateLabel}, {site.event.venue}에서 뉴아미를 만나보세요. 현장 미팅이나 행사 관련 문의도 기타 문의로 남겨주세요.
+                {t.eventNote(site.event.dateLabel, site.event.venue)}
               </p>
             </div>
           ) : null}
@@ -209,7 +255,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
               <label htmlFor={fieldId("organization")} className="text-[15px] font-bold">
-                기관/회사명 {required}
+                {t.organization} {required}
               </label>
               <input
                 {...fieldProps("organization")}
@@ -226,7 +272,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
             </div>
             <div>
               <label htmlFor={fieldId("name")} className="text-[15px] font-bold">
-                담당자명 {required}
+                {t.name} {required}
               </label>
               <input
                 {...fieldProps("name")}
@@ -245,7 +291,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
 
           <div>
             <label htmlFor={fieldId("email")} className="text-[15px] font-bold">
-              이메일 {required}
+              {t.email} {required}
             </label>
             <input
               {...fieldProps("email")}
@@ -256,7 +302,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
               inputMode="email"
               autoComplete="email"
               maxLength={EMAIL_MAX}
-              placeholder="회신받을 이메일 주소"
+              placeholder={t.emailPlaceholder}
               onChange={(e) => update("email", e.target.value)}
               className={inputClass(!!errors.email)}
             />
@@ -264,13 +310,13 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
           </div>
 
           <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
-            <label htmlFor={`${uid}-website`}>웹사이트</label>
+            <label htmlFor={`${uid}-website`}>{t.website}</label>
             <input id={`${uid}-website`} type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
           </div>
 
           <div>
             <label htmlFor={fieldId("message")} className="text-[15px] font-bold">
-              문의 내용 {required}
+              {t.message} {required}
             </label>
             <textarea
               {...fieldProps("message")}
@@ -288,7 +334,8 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
                 {errors.message}
               </p>
               <p id={countId} className="shrink-0 text-muted">
-                {values.message.length.toLocaleString()} / {MESSAGE_MAX.toLocaleString()}자
+                {values.message.length.toLocaleString()} / {MESSAGE_MAX.toLocaleString()}
+                {t.chars}
               </p>
             </div>
           </div>
@@ -296,7 +343,7 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
           <div>
             <button type="submit" disabled={status === "sending"} className="btn btn-primary w-full disabled:cursor-wait disabled:opacity-60 sm:w-auto">
               <Send size={18} aria-hidden />
-              {status === "sending" ? "보내는 중…" : "문의 보내기"}
+              {status === "sending" ? t.submitting : t.submit}
             </button>
           </div>
 
@@ -313,15 +360,15 @@ function Composer({ initialType, fromEvent }: ComposerProps) {
   );
 }
 
-function ComposerFromQuery() {
+function ComposerFromQuery({ locale }: { locale: Locale }) {
   const raw = useSearchParams().get("type");
-  return <Composer initialType={resolveInquiryType(raw)} fromEvent={raw === "event"} />;
+  return <Composer initialType={resolveInquiryType(raw)} fromEvent={raw === "event"} locale={locale} />;
 }
 
-export default function InquiryComposer() {
+export default function InquiryComposer({ locale }: { locale: Locale }) {
   return (
-    <Suspense fallback={<Composer initialType="institution" fromEvent={false} />}>
-      <ComposerFromQuery />
+    <Suspense fallback={<Composer initialType="institution" fromEvent={false} locale={locale} />}>
+      <ComposerFromQuery locale={locale} />
     </Suspense>
   );
 }

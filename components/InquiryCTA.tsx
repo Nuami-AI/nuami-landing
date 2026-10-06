@@ -1,7 +1,22 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { localePath, type Locale } from "@/lib/i18n";
+
+const defaults = {
+  ko: {
+    title: "다음 행동을 함께 만들까요?",
+    description: "대학과 기관의 협업, 서비스에 대한 질문, 새로운 연결을 기다립니다.",
+    label: "문의하기",
+  },
+  en: {
+    title: "Shall we shape the next step together?",
+    description: "We welcome partnerships with universities and institutions, questions about the service and new connections.",
+    label: "Contact us",
+  },
+} as const;
 
 type InquiryCTAProps = {
+  locale: Locale;
   title?: string;
   description?: string;
   label?: string;
@@ -9,10 +24,11 @@ type InquiryCTAProps = {
 };
 
 export default function InquiryCTA({
-  title = "다음 행동을 함께 만들까요?",
-  description = "대학과 기관의 협업, 서비스에 대한 질문, 새로운 연결을 기다립니다.",
-  label = "문의하기",
-  href = "/inquire_all",
+  locale,
+  title = defaults[locale].title,
+  description = defaults[locale].description,
+  label = defaults[locale].label,
+  href = localePath(locale, "/inquire_all"),
 }: InquiryCTAProps) {
   return (
     <section aria-labelledby="inquiry-cta-title" className="section-y bg-white">

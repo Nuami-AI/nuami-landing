@@ -1,26 +1,37 @@
 import type { Metadata } from "next";
+import { ogLocale, siteName } from "@/components/SiteShell";
 import { ogImage, site } from "@/content/site";
+import { localePath, type Locale } from "@/lib/i18n";
 
 type PageMetaInput = {
   title: string;
   description: string;
   path: string;
+  locale?: Locale;
   type?: "website" | "article";
 };
 
-export function pageMetadata({ title, description, path, type = "website" }: PageMetaInput): Metadata {
+export function pageMetadata({ title, description, path, locale = "ko", type = "website" }: PageMetaInput): Metadata {
   const ready = Boolean(site.canonicalUrl);
+  const url = localePath(locale, path);
   return {
     title,
     description,
-    ...(ready ? { alternates: { canonical: path } } : {}),
+    ...(ready
+      ? {
+          alternates: {
+            canonical: url,
+            languages: { ko: localePath("ko", path), en: localePath("en", path), "x-default": localePath("ko", path) },
+          },
+        }
+      : {}),
     openGraph: {
       type,
-      siteName: "뉴아미 Nuami",
-      locale: "ko_KR",
+      siteName: siteName[locale],
+      locale: ogLocale[locale],
       title,
       description,
-      ...(ready ? { url: path, images: [{ ...ogImage, alt: title }] } : {}),
+      ...(ready ? { url, images: [{ ...ogImage, alt: title }] } : {}),
     },
     twitter: {
       card: "summary_large_image",

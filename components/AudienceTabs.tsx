@@ -3,11 +3,19 @@
 import { Building2, Check, GraduationCap } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { audiences, resolveAudience, type AudienceId } from "@/content/solutions";
+import { audiences as audiencesByLocale, resolveAudience, type AudienceId } from "@/content/solutions";
+import type { Locale } from "@/lib/i18n";
+
+const copy = {
+  ko: { tablist: "적용 대상", who: "함께할 수 있는 곳", scenes: "예시 적용 장면" },
+  en: { tablist: "Who it's for", who: "Who we work with", scenes: "Example situations" },
+} as const;
 
 const icons = { university: GraduationCap, community: Building2 } as const;
 
-function Tabs({ initial }: { initial: AudienceId }) {
+function Tabs({ initial, locale }: { initial: AudienceId; locale: Locale }) {
+  const audiences = audiencesByLocale[locale];
+  const t = copy[locale];
   const [active, setActive] = useState<AudienceId>(initial);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -39,7 +47,7 @@ function Tabs({ initial }: { initial: AudienceId }) {
 
   return (
     <div className="mt-10 overflow-hidden rounded-[24px] border border-line bg-white md:mt-12">
-      <div role="tablist" aria-label="적용 대상" className="grid grid-cols-2 border-b-2 border-brand-deep">
+      <div role="tablist" aria-label={t.tablist} className="grid grid-cols-2 border-b-2 border-brand-deep">
         {audiences.map((a, i) => {
           const selected = a.id === active;
           const Icon = icons[a.id];
@@ -98,7 +106,7 @@ function Tabs({ initial }: { initial: AudienceId }) {
               <div>
                 <h3 className="text-[22px] leading-snug font-extrabold tracking-[-0.02em] md:text-[28px]">{a.title}</h3>
                 <p className="mt-3 text-[16px] text-muted md:text-[17px]">{a.description}</p>
-                <p className="mt-6 text-[14px] font-bold text-muted">함께할 수 있는 곳</p>
+                <p className="mt-6 text-[14px] font-bold text-muted">{t.who}</p>
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {a.who.map((w) => (
                     <li key={w} className="rounded-full bg-surface px-3.5 py-1.5 text-[14px] font-semibold text-ink">
@@ -108,7 +116,7 @@ function Tabs({ initial }: { initial: AudienceId }) {
                 </ul>
               </div>
               <div className="rounded-[20px] bg-lavender p-6">
-                <p className="text-[14px] font-bold text-brand-deep">예시 적용 장면</p>
+                <p className="text-[14px] font-bold text-brand-deep">{t.scenes}</p>
                 <ul className="mt-3 flex flex-col gap-3">
                   {a.scenes.map((scene) => (
                     <li key={scene} className="flex items-center gap-3 text-[17px] font-bold">
@@ -128,15 +136,15 @@ function Tabs({ initial }: { initial: AudienceId }) {
   );
 }
 
-function TabsFromQuery() {
+function TabsFromQuery({ locale }: { locale: Locale }) {
   const params = useSearchParams();
-  return <Tabs initial={resolveAudience(params.get("audience"))} />;
+  return <Tabs initial={resolveAudience(params.get("audience"))} locale={locale} />;
 }
 
-export default function AudienceTabs() {
+export default function AudienceTabs({ locale }: { locale: Locale }) {
   return (
-    <Suspense fallback={<Tabs initial="university" />}>
-      <TabsFromQuery />
+    <Suspense fallback={<Tabs initial="university" locale={locale} />}>
+      <TabsFromQuery locale={locale} />
     </Suspense>
   );
 }

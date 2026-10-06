@@ -1,5 +1,7 @@
 import { getInquiryTitle, type InquiryFields } from "@/content/inquiry";
-import { offices } from "@/content/site";
+import { offices as officesByLocale } from "@/content/site";
+
+const offices = officesByLocale.ko;
 
 export const MAIL_LOGO_CID = "nuami-logo@nuami.kr";
 
