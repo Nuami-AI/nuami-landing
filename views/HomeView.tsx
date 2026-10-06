@@ -52,12 +52,6 @@ const copy = {
       },
     ],
     seeDirection: "적용 방향 보기",
-    milestonesTitle: "아이디어를 실제 발걸음으로.",
-    achievements: [
-      { title: "부산광역시장상", description: "부산 공공데이터, AI 활용 창업경진대회 우수상" },
-      { title: "KU Global StartLink", description: "최종 2위" },
-      { title: "고려대학교 캠퍼스타운", description: "입주" },
-    ],
     newsTitle: "뉴아미의 새로운 발걸음.",
     allNews: "전체 뉴스 보기",
   },
@@ -108,12 +102,6 @@ const copy = {
       },
     ],
     seeDirection: "See how it applies",
-    milestonesTitle: "From idea to real steps.",
-    achievements: [
-      { title: "Mayor of Busan Award", description: "Excellence Award, Busan Public Data & AI Startup Competition" },
-      { title: "KU Global StartLink", description: "2nd place overall" },
-      { title: "Korea University Campus Town", description: "Resident company" },
-    ],
     newsTitle: "Nuami's latest steps.",
     allNews: "See all news",
   },
@@ -123,8 +111,6 @@ const solutionMeta = [
   { icon: GraduationCap, href: "/solutions?audience=university" },
   { icon: Building2, href: "/solutions?audience=community" },
 ];
-
-const achievementHrefs = ["/news/busan-public-data-award", "/news/ku-global-startlink", "/about#support"];
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
@@ -287,32 +273,13 @@ export default function HomeView({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      {/* 대표 성과 */}
-      <section aria-labelledby="achievement-title" className="section-y bg-white">
-        <div className="container-x">
-          <SectionHeading id="achievement-title" eyebrow="MILESTONES" title={t.milestonesTitle} />
-          <ul className="mobile-rail mt-10 grid border-t border-line md:mt-12 md:grid-cols-3">
-            {t.achievements.map((a, i) => (
-              <li key={a.title} className={`border-b border-line md:border-b-0 ${i > 0 ? "md:border-l md:pl-8" : ""} ${i < 2 ? "md:pr-8" : ""}`}>
-                <Link href={lp(achievementHrefs[i])} className="group flex h-full flex-col py-7 md:py-9">
-                  <span aria-hidden className="h-2 w-2 rounded-full bg-accent" />
-                  <span className="mt-4 text-[22px] font-extrabold tracking-[-0.02em] group-hover:text-brand-deep md:text-[26px]">{a.title}</span>
-                  <span className="mt-2 text-[16px] text-muted">{a.description}</span>
-                  <ArrowRight size={18} aria-hidden className="mt-5 text-brand-deep transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
       {/* 최신 소식 */}
       {latest.length ? (
-        <section aria-labelledby="latest-title" className="section-y bg-surface">
+        <section aria-labelledby="latest-title" className="section-y bg-white">
           <div className="container-x">
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="flex items-end justify-between gap-4">
               <SectionHeading id="latest-title" eyebrow="NEWS" title={t.newsTitle} />
-              <Link href={lp("/news")} className="text-link shrink-0 text-[16px]">
+              <Link href={lp("/news")} className="text-link shrink-0 text-[14px] md:text-[16px]">
                 {t.allNews}
                 <ArrowRight size={18} aria-hidden />
               </Link>

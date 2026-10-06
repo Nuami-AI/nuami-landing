@@ -18,7 +18,7 @@ export default function NewsCard({ item, headingLevel = "h3", locale, compact = 
       <NewsThumb
         item={item}
         size="small"
-        className={`aspect-[16/10] w-full ${compact ? "rounded-[14px] sm:rounded-[20px]" : "rounded-[20px]"}`}
+        className={`aspect-video w-full ${compact ? "rounded-[14px] sm:rounded-[20px]" : "rounded-[20px]"}`}
       />
       <Heading
         title={item.title}

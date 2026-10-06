@@ -36,7 +36,7 @@ export const history: Localized<HistoryYear[]> = {
         {
           month: 6,
           items: [
-            { text: "고려대학교 제20회 창업입주경진대회 & KU Global StartLink 최종 2위" },
+            { text: "고려대학교 제20회 창업입주경진대회 & KU Global StarLink 최종 2위" },
             { text: "고려대학교 서울캠퍼스타운 독립형 입주기업 선정" },
             { text: "2026 동남권 ICT이노베이션 스퀘어 부산 COA 오픈개발실 입주기업 선정" },
           ],
