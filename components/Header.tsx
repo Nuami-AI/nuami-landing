@@ -13,7 +13,7 @@ function isActive(pathname: string, href: string) {
 }
 
 const copy = {
-  ko: { home: "Nuami 홈", main: "주요 메뉴", mobile: "모바일 메뉴", open: "메뉴 열기", close: "메뉴 닫기", service: "서비스 이용하기", newWindow: "(새 창)", contact: "문의하기", language: "언어 선택" },
+  ko: { home: "뉴아미 홈", main: "주요 메뉴", mobile: "모바일 메뉴", open: "메뉴 열기", close: "메뉴 닫기", service: "서비스 이용하기", newWindow: "(새 창)", contact: "문의하기", language: "언어 선택" },
   en: { home: "Nuami home", main: "Main menu", mobile: "Mobile menu", open: "Open menu", close: "Close menu", service: "Use the service", newWindow: "(opens in a new window)", contact: "Contact", language: "Language" },
 } as const;
 

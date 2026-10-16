@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Script from "next/script";
+import Beusable from "@/components/Beusable";
 import ExhibitionBar from "@/components/ExhibitionBar";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -20,13 +20,14 @@ const pretendard = localFont({
   variable: "--font-pretendard",
 });
 
-export const siteName = { ko: "뉴아미 Nuami", en: "Nuami" } as const;
+export const siteName = { ko: "뉴아미", en: "Nuami" } as const;
 export const ogLocale = { ko: "ko_KR", en: "en_US" } as const;
 
 export function rootMetadata(locale: Locale): Metadata {
   const home = seo[locale].home;
   return {
     ...(site.canonicalUrl ? { metadataBase: new URL(site.canonicalUrl) } : {}),
+    applicationName: siteName[locale],
     title: home.title,
     description: home.description,
     openGraph: {
@@ -69,17 +70,7 @@ export default function SiteShell({ locale, children }: { locale: Locale; childr
         <main id="main">{children}</main>
         <Footer locale={locale} />
         <GoogleAnalytics />
-        <Script id="beusable-rum" strategy="afterInteractive">
-          {`(function(w, d, a){
-    w.__beusablerumclient__ = {
-        load : function(src){
-            var b = d.createElement("script");
-            b.src = src; b.async=true; b.type = "text/javascript";
-            d.getElementsByTagName("head")[0].appendChild(b);
-        }
-    };w.__beusablerumclient__.load(a + "?url=" + encodeURIComponent(d.URL));
-})(window, document, "//rum.beusable.net/load/b260927e125309u083");`}
-        </Script>
+        <Beusable />
       </body>
     </FontHtml>
   );

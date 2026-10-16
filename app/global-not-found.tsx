@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Beusable from "@/components/Beusable";
 import { FontHtml } from "@/components/SiteShell";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function GlobalNotFound() {
             </Link>
           </div>
         </main>
+        <Beusable />
       </body>
     </FontHtml>
   );

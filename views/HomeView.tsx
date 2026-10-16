@@ -7,6 +7,7 @@ import SectionHeading from "@/components/SectionHeading";
 import { getPublishedNews } from "@/content/news";
 import { guideCards, images, isExternalServiceReady, site } from "@/content/site";
 import { localePath, type Locale } from "@/lib/i18n";
+import { homeJsonLd } from "@/lib/jsonld";
 
 const copy = {
   ko: {
@@ -112,14 +113,7 @@ const solutionMeta = [
   { icon: Building2, href: "/solutions?audience=community" },
 ];
 
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: site.brandName,
-  alternateName: "뉴아미",
-  email: site.contactEmail,
-  ...(site.canonicalUrl ? { url: site.canonicalUrl } : {}),
-};
+const jsonLd = homeJsonLd();
 
 export default function HomeView({ locale }: { locale: Locale }) {
   const t = copy[locale];
@@ -297,7 +291,9 @@ export default function HomeView({ locale }: { locale: Locale }) {
 
       <InquiryCTA locale={locale} />
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+      {jsonLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      ) : null}
     </>
   );
 }
